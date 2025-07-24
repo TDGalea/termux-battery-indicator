@@ -1,6 +1,8 @@
 # Termux Battery Indicator
 Prints the battery percentage and charging status.<br />
-Designed for use within XFCE's panel in a generic monitor (genmon), since there's no native battery level indicator.
+Designed for use within XFCE's panel in a generic monitor (genmon).<br />
+While `xfce4-battery-plugin` can be installed and works, in my use-case it was <i>extremely</i> sluggish - even the config window was unusable. I'm gonna take a guess and say it's abusing the Termux:API way too frequently.
+
 
 ## Dependencies:
 ### Android:
