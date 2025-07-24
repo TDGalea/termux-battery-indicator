@@ -14,7 +14,8 @@ While `xfce4-battery-plugin` can be installed and works, in my use-case it was <
 
 ## Installation:
 Just download the script and put it somewhere accessible by Termux.<br />
-(Or better yet, just download it within Termux in the first place).
+(Or better yet, just download it within Termux in the first place).<br />
+Of course, make sure it's executable too (`chmod +x batlvl`).
 
 Personally, I've got it in `/data/data/com.termux/files/usr/bin/`.
 
