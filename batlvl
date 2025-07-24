@@ -1,0 +1,65 @@
+#!/bin/bash
+
+print_help() {
+cat <<EOF
+Usage: $(basename "$0") [-t <percentage> [state]]
+
+Options:
+	-t <percentage> [state]
+		Specify a fake battery percentage (and state, optionally).
+		<percentage> must be 0-100.
+		[state] must be 'CHARGING' or 'DISCHARGING'. Will assume DISCHARGING if not specified.
+	-h
+		Show this message.
+EOF
+exit 0
+}
+
+if [[ ! -z $1 ]]; then
+	case "$1" in
+		"-h") printf "HELP: RUN IN TERM"; printf "\r" >&2; print_help >&2;;
+		"-t") override_values=1;;
+		   *) printf "ERR: RUN IN TERM"; printf "\rInvalid argument: '$1'\n\n" >&2; print_help >&2;;
+	esac
+fi
+
+if [[ $override_values -eq 1 ]]; then
+	# Fake battery status passed in at runtime.
+	lvl="$2"
+	[[ -z $3 ]] && state="DISCHARGING" || state="$3"
+
+	num_re='^[0-9]+$'
+	# Ensure valid percentage.
+	if ! [[ $lvl =~ $num_re ]] || (( lvl < 0 || lvl > 100)); then
+		printf "ERR: RUN IN TERM"
+		printf "\rInvalid battery level. Must be 0-100." >&2
+		exit 1
+	fi
+
+	case "$state" in
+		CHARGING|DISCHARGING) ;;
+		                   *) printf "ERR: RUN IN TERM"; printf "\rInvalid state. Must be CHARGING or DISCHARGING." >&2; exit 1;;
+	esac
+else
+	# Store battery status output so we only have to call it once - Termux API kinda slow bro.
+	status="$(termux-battery-status)"
+
+	# Extract charging status and battery percentage.
+	state="$(printf "$status" | jq -r '.status')"
+	lvl="$(printf "$status" | jq -r '.percentage')"
+fi
+
+# Set emoji according to battery state and level.
+if [[ $lvl -eq 11 ]]; then
+	emoji="🧇"
+elif [[ "$state" == "CHARGING" ]]; then
+	emoji="🔌"
+elif [[ $lvl -gt 20 ]]; then
+	emoji="🔋"
+else
+	emoji="🪫"
+fi
+
+# Finally print the damn thing.
+printf "$emoji %d%%" "$lvl"
+exit 0
